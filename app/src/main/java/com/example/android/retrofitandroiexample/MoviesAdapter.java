@@ -3,20 +3,23 @@ package com.example.android.retrofitandroiexample;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.android.retrofitandroiexample.com.pojo.SongsItem;
+
 import java.util.ArrayList;
 
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
 
-    private ArrayList<Actorlist> movies;
-    private int rowLayout;
-    private Context context;
+    public ArrayList<SongsItem> movies;
+    public int rowLayout;
+    public Context context;
 
 
     public static class MovieViewHolder extends RecyclerView.ViewHolder {
@@ -37,10 +40,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         }
     }
 
-    public MoviesAdapter(ArrayList<Actorlist> movies, int rowLayout, Context context) {
-        this.movies = movies;
+    public MoviesAdapter( int rowLayout, Context context) {
         this.rowLayout = rowLayout;
         this.context = context;
+        movies = new ArrayList<>();
+
     }
 
     @Override
@@ -53,12 +57,22 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     @Override
     public void onBindViewHolder(MovieViewHolder holder, final int position) {
-        holder.movieTitle.setText(movies.get(position).getName());
-        holder.data.setText(movies.get(position).getBirthDate());
+        holder.movieTitle.setText(movies.get(position).getSongName());
+        holder.data.setText(movies.get(position).getSongLink());
     }
 
     @Override
     public int getItemCount() {
         return movies.size();
+    }
+
+
+    public void addSongs(ArrayList<SongsItem> songsItems){
+        movies.addAll(songsItems);
+        Log.d("data" , ""+movies.size());
+    }
+
+    public ArrayList<SongsItem> getMovieList() {
+        return movies;
     }
 }

@@ -5,9 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 import android.widget.Toast;
+
+import com.example.android.retrofitandroiexample.com.pojo.SongsItem;
+import com.example.android.retrofitandroiexample.com.pojo.SongsResponce;
 
 import java.util.ArrayList;
 
@@ -22,6 +24,12 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
     public final static String api_key = "LgGW9icPetuZNcB03nbJ9JioSG02EA5EVQ3gWps9MtGIN1sCTawtKzHFNRvK";
 
+    public RecyclerView recyclerView;
+    public MoviesAdapter adapter;
+
+    private int pageToDownload;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,9 +41,13 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Api is empty", Toast.LENGTH_SHORT).show();
         }
 
-        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(linearLayoutManager);
 
+
+
+        /*
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
         Call<ActorResponce> call = apiInterface.getActors(api_key);
         call.enqueue(new Callback<ActorResponce>() {
@@ -50,29 +62,57 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Not responding", Toast.LENGTH_SHORT).show();
             }
         });
+        */
 
+        pageToDownload = 1;
+        adapter = new MoviesAdapter(R.layout.list_item_movie , getApplicationContext());
+        apiCall(pageToDownload);
+        Log.d("call-1" , "Api call");
 
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                // Load more if RecyclerView has reached the end and isn't already loading
+                if (linearLayoutManager.findLastVisibleItemPosition() == adapter.movies.size()-1) {
+
+                    if (pageToDownload < 999) {
+                        Toast.makeText(MainActivity.this, "New page loading", Toast.LENGTH_SHORT).show();
+                        apiCall(pageToDownload);
+                        Log.d("call-2" , "Api call");
+                    }
+                }
+            }
+        });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    public void apiCall(int pageNumber){
+        Log.d("new page" , ""+pageNumber);
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+        final Call<SongsResponce> songsResponceCall = apiInterface.getSongs( pageNumber, api_key);
+        //Log.d("url" , ""+songsResponceCall.request().url().toString());
+
+        songsResponceCall.enqueue(new Callback<SongsResponce>() {
+            @Override
+            public void onResponse(Call<SongsResponce> call, Response<SongsResponce> response) {
+
+                ArrayList<SongsItem> songsItemArrayList = response.body().getSongsItemArrayList();
+                adapter.addSongs(songsItemArrayList);
+                recyclerView.setAdapter(adapter);
+
+            }
+
+            @Override
+            public void onFailure(Call<SongsResponce> call, Throwable t) {
+
+            }
+
+        });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void dataInput(){
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        pageToDownload++;
     }
 }

@@ -11,8 +11,9 @@ public class ApiClient {
 
 
     //http://api.bollywoodgaana.com/api/v1/actors?api_token=LgGW9icPetuZNcB03nbJ9JioSG02EA5EVQ3gWps9MtGIN1sCTawtKzHFNRvK
+    //http://api.bollywoodgaana.com/api/v3/hindi_video?&page=3&api_token=LgGW9icPetuZNcB03nbJ9JioSG02EA5EVQ3gWps9MtGIN1sCTawtKzHFNRvK
 
-    public static final String BASE_URL = "http://api.bollywoodgaana.com/api/";
+    public static final String BASE_URL = "http://api.bollywoodgaana.com/api/v3/";
     public static Retrofit retrofit = null;
 
 
